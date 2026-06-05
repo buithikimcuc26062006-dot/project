@@ -9,7 +9,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ArrowLeft, ShoppingCart, Plus, Check, ChevronRight, Home, Grid, User } from 'lucide-react-native';
+import { ArrowLeft, ShoppingCart, Plus, Check, ChevronRight, Home, Grid, User, ShoppingBasket } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
 
 const RELATED_PRODUCTS = [
@@ -189,6 +189,7 @@ export default function RelatedProductsScreen() {
             </View>
             <TouchableOpacity style={styles.addAllBtn} activeOpacity={0.85}>
               <Text style={styles.addAllBtnText}>Thêm tất cả vào giỏ</Text>
+              <ShoppingBasket size={18} color={Colors.onSecondaryContainer} />
             </TouchableOpacity>
           </View>
         </View>
@@ -249,10 +250,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    fontSize: 24,
-    fontWeight: '800',
+    fontSize: 28,
+    fontWeight: '700',
     color: Colors.primary,
-    fontFamily: 'NunitoSans-ExtraBold',
+    fontFamily: 'NunitoSans-Bold',
     letterSpacing: -0.5,
   },
   scroll: { flex: 1 },
@@ -465,6 +466,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 9999,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   addAllBtnText: {
     fontSize: 14,
