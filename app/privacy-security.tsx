@@ -6,131 +6,226 @@ import {
   TouchableOpacity,
   ScrollView,
   Switch,
+  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ArrowLeft, ShoppingCart, Lock, Eye, Bell, Smartphone, Globe } from 'lucide-react-native';
+import {
+  ArrowLeft,
+  ShieldCheck,
+  Fingerprint,
+  Smartphone,
+  Tablet,
+  MapPin,
+  Bell,
+  TriangleAlert,
+  Home,
+  Grid,
+  Lock,
+  User,
+  LogOut,
+} from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-
-interface PrivacySetting {
-  id: string;
-  title: string;
-  desc: string;
-  icon: any;
-  enabled: boolean;
-}
-
-const INITIAL_SETTINGS: PrivacySetting[] = [
-  {
-    id: 'profile_visible',
-    title: 'Hồ sơ công khai',
-    desc: 'Cho phép mọi người xem hồ sơ của bạn',
-    icon: Eye,
-    enabled: true,
-  },
-  {
-    id: 'activity_visible',
-    title: 'Hiển thị hoạt động',
-    desc: 'Hiển thị trạng thái hoạt động của bạn',
-    icon: Eye,
-    enabled: false,
-  },
-  {
-    id: 'notifications',
-    title: 'Thông báo',
-    desc: 'Nhận thông báo từ ứng dụng',
-    icon: Bell,
-    enabled: true,
-  },
-  {
-    id: 'mobile_login',
-    title: 'Đăng nhập từ thiết bị khác',
-    desc: 'Cảnh báo khi có đăng nhập mới',
-    icon: Smartphone,
-    enabled: true,
-  },
-  {
-    id: 'two_factor',
-    title: 'Xác thực hai bước',
-    desc: 'Bảo vệ tài khoản với xác thực hai bước',
-    icon: Lock,
-    enabled: false,
-  },
-  {
-    id: 'data_share',
-    title: 'Chia sẻ dữ liệu',
-    desc: 'Cho phép chia sẻ dữ liệu để cải thiện dịch vụ',
-    icon: Globe,
-    enabled: true,
-  },
-];
 
 export default function PrivacySecurityScreen() {
   const router = useRouter();
-  const [settings, setSettings] = useState(INITIAL_SETTINGS);
-
-  const toggleSetting = (id: string) => {
-    setSettings(
-      settings.map((setting) =>
-        setting.id === id ? { ...setting, enabled: !setting.enabled } : setting
-      )
-    );
-  };
+  const [biometric, setBiometric] = useState(true);
+  const [location, setLocation] = useState(true);
+  const [personalizedNotifs, setPersonalizedNotifs] = useState(false);
 
   return (
     <View style={styles.container}>
-      {/* Header */}
+      {/* TopAppBar */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <ArrowLeft size={22} color={Colors.primary} />
+        <View style={styles.headerLeft}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
+            <ArrowLeft size={22} color={Colors.primary} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Privacy &amp; Security</Text>
+        </View>
+        <TouchableOpacity style={styles.headerBtn}>
+          <ShieldCheck size={22} color={Colors.primary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Quyền riêng tư & Bảo mật</Text>
-        <ShoppingCart size={22} color={Colors.primary} />
       </View>
 
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Intro Section */}
-        <View style={styles.introBox}>
-          <Lock size={32} color={Colors.primary} />
-          <Text style={styles.introText}>
-            Quản lý cài đặt quyền riêng tư và bảo mật tài khoản của bạn
-          </Text>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Hero Visual */}
+        <View style={styles.heroCard}>
+          <View style={styles.heroDecorTop} />
+          <View style={styles.heroDecorBottom} />
+          <View style={styles.heroContent}>
+            <ShieldCheck
+              size={48}
+              color={Colors.primary}
+              fill={Colors.primary}
+              style={{ marginBottom: 8 }}
+            />
+            <Text style={styles.heroText}>Your data is safe with us</Text>
+          </View>
         </View>
 
-        {/* Settings Section */}
-        <Text style={styles.sectionTitle}>Cài đặt quyền riêng tư</Text>
-        <View style={styles.settingsList}>
-          {settings.map((setting) => {
-            const IconComponent = setting.icon;
-            return (
-              <View key={setting.id} style={styles.settingItem}>
-                <View style={styles.settingContent}>
-                  <View style={styles.settingIcon}>
-                    <IconComponent size={20} color={Colors.primary} />
-                  </View>
-                  <View style={styles.settingText}>
-                    <Text style={styles.settingTitle}>{setting.title}</Text>
-                    <Text style={styles.settingDesc}>{setting.desc}</Text>
-                  </View>
-                </View>
-                <Switch
-                  value={setting.enabled}
-                  onValueChange={() => toggleSetting(setting.id)}
-                  trackColor={{ false: Colors.outlineVariant + '40', true: Colors.primaryContainer }}
-                  thumbColor={setting.enabled ? Colors.primary : Colors.outlineVariant}
-                />
+        {/* Section: Security */}
+        <Text style={styles.sectionLabel}>Security</Text>
+        <View style={styles.card}>
+          <View style={styles.settingRow}>
+            <View style={styles.settingLeft}>
+              <View style={[styles.iconBox, { backgroundColor: Colors.primary + '1a' }]}>
+                <Fingerprint size={20} color={Colors.primary} />
               </View>
-            );
-          })}
+              <View style={styles.settingText}>
+                <Text style={styles.settingTitle}>Biometric Login</Text>
+                <Text style={styles.settingDesc}>Use FaceID or TouchID to login</Text>
+              </View>
+            </View>
+            <Switch
+              value={biometric}
+              onValueChange={setBiometric}
+              trackColor={{ false: Colors.outlineVariant, true: Colors.primary }}
+              thumbColor={Colors.surfaceContainerLowest}
+            />
+          </View>
         </View>
 
-        {/* Danger Zone */}
-        <Text style={styles.dangerTitle}>Nâng cao</Text>
-        <TouchableOpacity style={styles.dangerBox}>
-          <Text style={styles.dangerText}>Xóa tài khoản</Text>
-        </TouchableOpacity>
+        {/* Section: Devices */}
+        <Text style={styles.sectionLabel}>Devices</Text>
+        <View style={styles.card}>
+          {/* Header row */}
+          <View style={[styles.settingRow, styles.borderBottom]}>
+            <View style={styles.settingLeft}>
+              <View style={[styles.iconBox, { backgroundColor: Colors.skyBlue + '33' }]}>
+                <Smartphone size={20} color={Colors.primary} />
+              </View>
+              <Text style={styles.settingTitle}>Login Sessions</Text>
+            </View>
+          </View>
+
+          {/* iPhone 13 - current device */}
+          <View style={[styles.settingRow, styles.borderBottom]}>
+            <View style={styles.settingLeft}>
+              <Smartphone size={20} color={Colors.onSurfaceVariant} />
+              <View style={styles.settingText}>
+                <Text style={styles.deviceName}>iPhone 13</Text>
+                <Text style={styles.deviceActiveText}>Active now</Text>
+              </View>
+            </View>
+            <View style={styles.thisDeviceBadge}>
+              <Text style={styles.thisDeviceText}>This Device</Text>
+            </View>
+          </View>
+
+          {/* iPad Pro - other device */}
+          <View style={styles.settingRow}>
+            <View style={styles.settingLeft}>
+              <Tablet size={20} color={Colors.onSurfaceVariant} />
+              <View style={styles.settingText}>
+                <Text style={styles.deviceName}>iPad Pro</Text>
+                <Text style={styles.settingDesc}>Last active: 2 hours ago</Text>
+              </View>
+            </View>
+            <TouchableOpacity
+              style={styles.logoutBtn}
+              onPress={() => Alert.alert('Đăng xuất', 'Bạn có muốn đăng xuất thiết bị này không?')}
+            >
+              <LogOut size={20} color={Colors.error} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Section: Privacy Permissions */}
+        <Text style={styles.sectionLabel}>Privacy Permissions</Text>
+        <View style={styles.card}>
+          {/* Location Access */}
+          <View style={[styles.settingRow, styles.borderBottom]}>
+            <View style={styles.settingLeft}>
+              <View style={[styles.iconBox, { backgroundColor: Colors.tertiaryContainer + '1a' }]}>
+                <MapPin size={20} color={Colors.tertiary} />
+              </View>
+              <View style={styles.settingText}>
+                <Text style={styles.settingTitle}>Location Access</Text>
+                <Text style={styles.settingDesc}>Needed for finding nearby clinics</Text>
+              </View>
+            </View>
+            <Switch
+              value={location}
+              onValueChange={setLocation}
+              trackColor={{ false: Colors.outlineVariant, true: Colors.primary }}
+              thumbColor={Colors.surfaceContainerLowest}
+            />
+          </View>
+
+          {/* Personalized Notifications */}
+          <View style={styles.settingRow}>
+            <View style={styles.settingLeft}>
+              <View style={[styles.iconBox, { backgroundColor: Colors.babyPink + '4d' }]}>
+                <Bell size={20} color={Colors.onSurface} />
+              </View>
+              <View style={styles.settingText}>
+                <Text style={styles.settingTitle}>Personalized Notifications</Text>
+                <Text style={styles.settingDesc}>App tracking for custom wellness tips</Text>
+              </View>
+            </View>
+            <Switch
+              value={personalizedNotifs}
+              onValueChange={setPersonalizedNotifs}
+              trackColor={{ false: Colors.outlineVariant, true: Colors.primary }}
+              thumbColor={Colors.surfaceContainerLowest}
+            />
+          </View>
+        </View>
+
+        {/* Section: Account Management */}
+        <Text style={[styles.sectionLabel, { paddingTop: 16 }]}>Account Management</Text>
+        <View style={styles.dangerBox}>
+          <TriangleAlert size={28} color={Colors.error} />
+          <Text style={styles.dangerDesc}>
+            Want to stop using Con Khỏe? All your medical records and baby progress will be permanently erased.
+          </Text>
+          <TouchableOpacity
+            style={styles.deleteBtn}
+            activeOpacity={0.85}
+            onPress={() =>
+              Alert.alert(
+                'Xóa tài khoản',
+                'Tất cả dữ liệu của bạn sẽ bị xóa vĩnh viễn. Bạn có chắc không?',
+                [
+                  { text: 'Hủy', style: 'cancel' },
+                  { text: 'Xóa', style: 'destructive' },
+                ]
+              )
+            }
+          >
+            <Text style={styles.deleteBtnText}>Request Permanent Account Deletion</Text>
+          </TouchableOpacity>
+        </View>
+        <Text style={styles.gdprNote}>
+          Legal Compliance: General Data Protection Regulation (GDPR) Ready.
+        </Text>
 
         <View style={{ height: 100 }} />
       </ScrollView>
+
+      {/* Bottom Navigation Bar */}
+      <View style={styles.navBar}>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.replace('/')}>
+          <Home size={22} color={Colors.onSurfaceVariant} />
+          <Text style={styles.navLabel}>Trang chủ</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem}>
+          <Grid size={22} color={Colors.onSurfaceVariant} />
+          <Text style={styles.navLabel}>Danh mục</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem}>
+          <Lock size={22} color={Colors.onSurfaceVariant} />
+          <Text style={styles.navLabel}>Safety</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItemActive} onPress={() => router.push('/my-profile')}>
+          <User size={18} color={Colors.onSecondaryContainer} fill={Colors.onSecondaryContainer} />
+          <Text style={styles.navLabelActive}>Tài khoản</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -149,77 +244,130 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 12,
     elevation: 4,
+    zIndex: 100,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  headerBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: '700',
     color: Colors.primary,
     fontFamily: 'NunitoSans-Bold',
   },
   scroll: { flex: 1 },
-  scrollContent: { paddingHorizontal: 20, paddingTop: 16 },
-  introBox: {
-    backgroundColor: Colors.surfaceContainerLowest,
+  scrollContent: { paddingHorizontal: 20, paddingTop: 24 },
+
+  // Hero
+  heroCard: {
+    width: '100%',
+    height: 160,
     borderRadius: 16,
-    padding: 20,
+    overflow: 'hidden',
+    backgroundColor: Colors.primaryContainer + '33',
+    borderWidth: 1,
+    borderColor: Colors.primary + '1a',
     alignItems: 'center',
-    gap: 12,
+    justifyContent: 'center',
     marginBottom: 24,
     shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 3,
+    shadowRadius: 30,
+    elevation: 4,
+    position: 'relative',
   },
-  introText: {
-    fontSize: 14,
-    color: Colors.onSurfaceVariant,
-    textAlign: 'center',
-    fontFamily: 'NunitoSans-Regular',
+  heroDecorTop: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: 128,
+    height: 128,
+    borderRadius: 64,
+    backgroundColor: Colors.primary,
+    opacity: 0.1,
+    transform: [{ translateX: 32 }, { translateY: -32 }],
   },
-  sectionTitle: {
+  heroDecorBottom: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    width: 192,
+    height: 192,
+    borderRadius: 96,
+    backgroundColor: Colors.tertiaryContainer,
+    opacity: 0.1,
+    transform: [{ translateX: -64 }, { translateY: 64 }],
+  },
+  heroContent: {
+    zIndex: 1,
+    alignItems: 'center',
+  },
+  heroText: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: Colors.primary,
+    fontFamily: 'NunitoSans-Bold',
+  },
+
+  // Section label
+  sectionLabel: {
     fontSize: 14,
     fontWeight: '700',
     color: Colors.onSurfaceVariant,
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 12,
+    letterSpacing: 1,
+    paddingHorizontal: 4,
+    marginBottom: 8,
     fontFamily: 'NunitoSans-Bold',
   },
-  settingsList: {
-    gap: 12,
-    marginBottom: 24,
+
+  // Card
+  card: {
+    backgroundColor: Colors.surfaceContainerLowest,
+    borderRadius: 16,
+    marginBottom: 16,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.08,
+    shadowRadius: 30,
+    elevation: 3,
+    overflow: 'hidden',
   },
-  settingItem: {
+  settingRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: Colors.surfaceContainerLowest,
-    borderRadius: 12,
-    padding: 16,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 3,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
-  settingContent: {
-    flex: 1,
+  borderBottom: {
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.outlineVariant + '4d',
+  },
+  settingLeft: {
     flexDirection: 'row',
-    gap: 12,
+    alignItems: 'center',
+    gap: 16,
+    flex: 1,
   },
-  settingIcon: {
+  iconBox: {
     width: 40,
     height: 40,
     borderRadius: 10,
-    backgroundColor: Colors.primaryContainer + '20',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  settingText: {
-    flex: 1,
-    gap: 2,
-  },
+  settingText: { flex: 1, gap: 2 },
   settingTitle: {
     fontSize: 14,
     fontWeight: '700',
@@ -231,27 +379,130 @@ const styles = StyleSheet.create({
     color: Colors.onSurfaceVariant,
     fontFamily: 'NunitoSans-Regular',
   },
-  dangerTitle: {
-    fontSize: 14,
+  deviceName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.onSurface,
+    fontFamily: 'NunitoSans-SemiBold',
+  },
+  deviceActiveText: {
+    fontSize: 12,
     fontWeight: '700',
-    color: Colors.error,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 12,
+    color: Colors.primary,
     fontFamily: 'NunitoSans-Bold',
   },
+  thisDeviceBadge: {
+    backgroundColor: Colors.surfaceContainer,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 9999,
+  },
+  thisDeviceText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: Colors.onSurface,
+    fontFamily: 'NunitoSans-SemiBold',
+  },
+  logoutBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  // Danger zone
   dangerBox: {
-    backgroundColor: Colors.error + '15',
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: Colors.errorContainer + '33',
+    borderWidth: 1,
+    borderColor: Colors.error + '1a',
+    borderRadius: 16,
+    padding: 20,
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 8,
+  },
+  dangerDesc: {
+    fontSize: 16,
+    color: Colors.onSurfaceVariant,
+    textAlign: 'center',
+    fontFamily: 'NunitoSans-Regular',
+    lineHeight: 24,
+  },
+  deleteBtn: {
+    width: '100%',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 9999,
     borderWidth: 2,
-    borderColor: Colors.error + '30',
+    borderColor: Colors.error,
     alignItems: 'center',
   },
-  dangerText: {
+  deleteBtnText: {
     fontSize: 14,
     fontWeight: '700',
     color: Colors.error,
+    fontFamily: 'NunitoSans-Bold',
+  },
+  gdprNote: {
+    fontSize: 12,
+    color: Colors.onSurfaceVariant,
+    textAlign: 'center',
+    paddingTop: 8,
+    fontFamily: 'NunitoSans-Regular',
+  },
+
+  // Bottom Nav
+  navBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 70,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    backgroundColor: Colors.surfaceContainerLowest,
+    borderTopWidth: 1,
+    borderTopColor: Colors.outlineVariant + '20',
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: -10 },
+    shadowOpacity: 0.08,
+    shadowRadius: 30,
+    elevation: 12,
+    zIndex: 50,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+  },
+  navItem: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 8,
+    gap: 4,
+  },
+  navLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.onSurfaceVariant,
+    fontFamily: 'NunitoSans-Bold',
+  },
+  navItemActive: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.secondaryContainer,
+    borderRadius: 9999,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    gap: 6,
+  },
+  navLabelActive: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.onSecondaryContainer,
     fontFamily: 'NunitoSans-Bold',
   },
 });
