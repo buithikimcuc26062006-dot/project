@@ -17,21 +17,44 @@ import {
   Ticket,
   ChevronRight,
   ArrowRight,
+  Home,
+  Grid,
+  ShoppingCart,
+  User,
 } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
-import {
-  DEFAULT_CART_ITEMS,
-  formatVnd,
-  calcSubtotal,
-  type CartItem,
-} from '@/constants/cart';
 
-const SHIPPING_FEE = 0;
-const DISCOUNT = 0;
+interface CartItem {
+  id: number;
+  name: string;
+  desc: string;
+  price: number;
+  quantity: number;
+  image: string;
+}
+
+const INITIAL_CART_ITEMS: CartItem[] = [
+  {
+    id: 1,
+    name: 'Bình Sữa Pigeon PPSU Plus',
+    desc: 'Dung tích 240ml • Màu Xanh',
+    price: 376000,
+    quantity: 1,
+    image: 'https://i.ibb.co/Kjn5bpjd/n-i-n-u-ch-m-0-8l-18.png',
+  },
+  {
+    id: 2,
+    name: 'Nồi Nấu Cháo Chậm Bear 0.8L',
+    desc: 'Đa năng • Hẹn giờ 24h',
+    price: 980000,
+    quantity: 1,
+    image: 'https://i.ibb.co/V8JDSzQ/n-i-n-u-ch-m-0-8l-14.png',
+  },
+];
 
 export default function CartScreen() {
   const router = useRouter();
-  const [cartItems, setCartItems] = useState<CartItem[]>(DEFAULT_CART_ITEMS);
+  const [cartItems, setCartItems] = useState<CartItem[]>(INITIAL_CART_ITEMS);
 
   const updateQuantity = (id: number, change: number) => {
     setCartItems((items) =>
@@ -47,18 +70,23 @@ export default function CartScreen() {
     setCartItems((items) => items.filter((item) => item.id !== id));
   };
 
-  const subtotal = calcSubtotal(cartItems);
-  const total = subtotal + SHIPPING_FEE - DISCOUNT;
-  const productCount = cartItems.length;
+  const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const total = subtotal;
+  const productCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+
+  const formatVnd = (value: number) => {
+    return value.toLocaleString('vi-VN') + 'đ';
+  };
 
   return (
     <View style={styles.container}>
+      {/* Top App Bar */}
       <View style={styles.header}>
-        <TouchableOpacity activeOpacity={0.8}>
+        <TouchableOpacity activeOpacity={0.8} style={styles.headerBtn}>
           <Menu size={24} color={Colors.primary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Con Khỏe</Text>
-        <TouchableOpacity activeOpacity={0.8}>
+        <TouchableOpacity activeOpacity={0.8} style={styles.headerBtn}>
           <ShoppingBasket size={24} color={Colors.primary} />
         </TouchableOpacity>
       </View>
@@ -68,6 +96,7 @@ export default function CartScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        {/* Cart Header */}
         <View style={styles.cartHeader}>
           <Text style={styles.cartTitle}>Giỏ hàng</Text>
           <View style={styles.cartBadge}>
@@ -77,11 +106,12 @@ export default function CartScreen() {
           </View>
         </View>
 
+        {/* Cart List */}
         <View style={styles.itemsList}>
           {cartItems.map((item) => (
             <View key={item.id} style={styles.cartItem}>
               <View style={styles.itemImageWrapper}>
-                <Image source={{ uri: item.image }} style={styles.itemImage} />
+                <Image source={{ uri: item.image }} style={styles.itemImage} resizeMode="cover" />
               </View>
               <View style={styles.itemContent}>
                 <View>
@@ -126,6 +156,7 @@ export default function CartScreen() {
           <Text style={styles.emptyText}>Giỏ hàng trống</Text>
         )}
 
+        {/* Coupon Section */}
         <TouchableOpacity
           style={styles.couponBox}
           activeOpacity={0.9}
@@ -148,6 +179,7 @@ export default function CartScreen() {
           </View>
         </TouchableOpacity>
 
+        {/* Summary Details */}
         <View style={styles.summary}>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Tạm tính</Text>
@@ -155,38 +187,62 @@ export default function CartScreen() {
           </View>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Phí vận chuyển</Text>
-            <Text style={styles.summaryValue}>{formatVnd(SHIPPING_FEE)}</Text>
+            <Text style={styles.summaryValue}>0đ</Text>
           </View>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Giảm giá</Text>
-            <Text style={styles.summaryDiscount}>
-              -{formatVnd(DISCOUNT)}
-            </Text>
+            <Text style={styles.summaryDiscount}>-0đ</Text>
           </View>
         </View>
+
+        <View style={{ height: 160 }} />
       </ScrollView>
 
-      <View style={styles.checkoutBar}>
-        <View>
-          <Text style={styles.totalLabel}>Tổng cộng</Text>
-          <Text style={styles.totalPrice}>{formatVnd(total)}</Text>
+      {/* Sticky Bottom Checkout & Nav */}
+      <View style={styles.bottomBar}>
+        {/* Checkout Bar */}
+        <View style={styles.checkoutBar}>
+          <View>
+            <Text style={styles.totalLabel}>Tổng cộng</Text>
+            <Text style={styles.totalPrice}>{formatVnd(total)}</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.checkoutBtn}
+            activeOpacity={0.9}
+            onPress={() => router.push('/checkout')}
+            disabled={cartItems.length === 0}
+          >
+            <Text style={styles.checkoutBtnText}>Thanh toán ngay</Text>
+            <ArrowRight size={20} color={Colors.onPrimary} />
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          style={styles.checkoutBtn}
-          activeOpacity={0.9}
-          onPress={() => router.push('/checkout')}
-          disabled={cartItems.length === 0}
-        >
-          <Text style={styles.checkoutBtnText}>Thanh toán ngay</Text>
-          <ArrowRight size={20} color={Colors.onPrimary} />
-        </TouchableOpacity>
+
+        {/* Bottom Navigation Bar */}
+        <View style={styles.navBar}>
+          <TouchableOpacity style={styles.navItem} onPress={() => router.replace('/')}>
+            <Home size={22} color={Colors.onSurfaceVariant} />
+            <Text style={styles.navLabel}>Trang chủ</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.navItem} onPress={() => alert('Chuyển đến Danh mục')}>
+            <Grid size={22} color={Colors.onSurfaceVariant} />
+            <Text style={styles.navLabel}>Danh mục</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.navItemActive} onPress={() => alert('Mở Giỏ hàng')}>
+            <ShoppingCart size={18} color={Colors.onSecondaryContainer} />
+            <Text style={styles.navLabelActive}>Giỏ hàng</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.navItem} onPress={() => router.push('/my-profile')}>
+            <User size={22} color={Colors.onSurfaceVariant} />
+            <Text style={styles.navLabel}>Tài khoản</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
 }
-
-const TAB_BAR_HEIGHT = 70;
-const CHECKOUT_BAR_HEIGHT = 88;
 
 const styles = StyleSheet.create({
   container: {
@@ -205,7 +261,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 1,
     shadowRadius: 30,
     elevation: 8,
-    zIndex: 50,
+    zIndex: 100,
   },
   headerTitle: {
     fontSize: 24,
@@ -214,17 +270,24 @@ const styles = StyleSheet.create({
     fontFamily: 'NunitoSans-Bold',
     letterSpacing: -0.5,
   },
+  headerBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   scroll: { flex: 1 },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: CHECKOUT_BAR_HEIGHT + TAB_BAR_HEIGHT + 24,
+    paddingTop: 24,
+    paddingBottom: 200,
   },
   cartHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: 24,
   },
   cartTitle: {
     fontSize: 28,
@@ -250,7 +313,7 @@ const styles = StyleSheet.create({
   cartItem: {
     flexDirection: 'row',
     backgroundColor: Colors.surfaceContainerLowest,
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 16,
     gap: 16,
     shadowColor: 'rgba(1, 131, 78, 0.08)',
@@ -258,6 +321,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 1,
     shadowRadius: 30,
     elevation: 4,
+    position: 'relative',
     overflow: 'hidden',
   },
   itemImageWrapper: {
@@ -359,7 +423,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: '#ffffff',
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 16,
     marginTop: 32,
     shadowColor: 'rgba(1, 131, 78, 0.08)',
@@ -435,11 +499,15 @@ const styles = StyleSheet.create({
     color: Colors.tertiary,
     fontFamily: 'NunitoSans-Regular',
   },
-  checkoutBar: {
+  bottomBar: {
     position: 'absolute',
+    bottom: 0,
     left: 0,
     right: 0,
-    bottom: 0,
+    backgroundColor: Colors.surface,
+    zIndex: 100,
+  },
+  checkoutBar: {
     backgroundColor: Colors.surface,
     paddingHorizontal: 16,
     paddingVertical: 16,
@@ -447,15 +515,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 16,
     borderTopWidth: 1,
-    borderTopColor: Colors.surfaceContainerHigh,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
+    borderTopColor: Colors.outlineVariant + '40',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
     shadowColor: 'rgba(1, 131, 78, 0.1)',
     shadowOffset: { width: 0, height: -10 },
     shadowOpacity: 1,
     shadowRadius: 30,
     elevation: 12,
-    bottom: TAB_BAR_HEIGHT,
   },
   totalLabel: {
     fontSize: 12,
@@ -492,6 +559,45 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     fontWeight: '700',
     color: Colors.onPrimary,
+    fontFamily: 'NunitoSans-Bold',
+  },
+  navBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: Colors.surface,
+    borderTopWidth: 1,
+    borderTopColor: Colors.outlineVariant + '20',
+  },
+  navItem: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 8,
+    gap: 4,
+  },
+  navLabel: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: Colors.onSurfaceVariant,
+    fontFamily: 'NunitoSans-Bold',
+  },
+  navItemActive: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.secondaryContainer,
+    borderRadius: 9999,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    gap: 6,
+  },
+  navLabelActive: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: Colors.onSecondaryContainer,
     fontFamily: 'NunitoSans-Bold',
   },
 });

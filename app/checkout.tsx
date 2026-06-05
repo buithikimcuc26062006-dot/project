@@ -6,160 +6,219 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ArrowLeft, MapPin, Truck, Wallet, Package, Edit3 } from 'lucide-react-native';
+import { ArrowLeft, MapPin, Truck, Wallet, Package, Edit3, CheckCircle, Tag, X, ArrowRight } from 'lucide-react-native';
 import { Colors } from '@/constants/colors';
 
 export default function CheckoutScreen() {
   const router = useRouter();
   const [shippingMethod, setShippingMethod] = useState('express');
+  const [loading, setLoading] = useState(false);
+
+  const handlePlaceOrder = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      router.replace('/order-confirmation');
+    }, 2000);
+  };
 
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <ArrowLeft size={22} color={Colors.primary} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Thanh Toán</Text>
+        <View style={styles.headerLeft}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <ArrowLeft size={24} color={Colors.primary} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Thanh Toán</Text>
+        </View>
         <Text style={styles.stepLabel}>1 Bước</Text>
       </View>
 
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Progress Bar */}
         <View style={styles.progressBar}>
-          <View style={styles.progressDot} />
-          <View style={styles.progressDot} />
-          <View style={styles.progressDot} />
+          <View style={styles.progressSegment} />
+          <View style={styles.progressSegment} />
+          <View style={styles.progressSegment} />
         </View>
 
-        {/* 1. Shipping Address */}
-        <View style={styles.section}>
+        {/* 1. Shipping Address Summary */}
+        <TouchableOpacity style={styles.section} onPress={() => router.push('/delivery-address')} activeOpacity={0.9}>
           <View style={styles.sectionHeader}>
             <View style={styles.sectionTitleRow}>
               <MapPin size={18} color={Colors.primary} />
               <Text style={styles.sectionTitle}>Địa chỉ giao hàng</Text>
             </View>
-            <TouchableOpacity>
-              <Edit3 size={16} color={Colors.outline} />
-            </TouchableOpacity>
+            <Edit3 size={16} color={Colors.outline} />
           </View>
-          <Text style={styles.sectionSubtitle}>Nguyễn Minh Anh • 0908 123 456</Text>
-          <Text style={styles.sectionContent}>
-            123 Đường Lê Lợi, Phường Bến Thành, Quận 1, TP. Hồ Chí Minh
-          </Text>
-        </View>
+          <View style={styles.addressBody}>
+            <Text style={styles.addressName}>Nguyễn Minh Anh • 0908 123 456</Text>
+            <Text style={styles.addressText}>123 Đường Lê Lợi, Phường Bến Thành, Quận 1, TP. Hồ Chí Minh</Text>
+          </View>
+        </TouchableOpacity>
 
-        {/* 2. Shipping Method */}
+        {/* 2. Delivery Method */}
         <View style={styles.section}>
           <View style={styles.sectionTitleRow}>
             <Truck size={18} color={Colors.primary} />
             <Text style={styles.sectionTitle}>Phương thức vận chuyển</Text>
           </View>
           <View style={styles.shippingOptions}>
-            {[
-              { id: 'express', name: 'Giao hàng nhanh', desc: 'Dự kiến: Ngày mai', price: '35.000đ' },
-              { id: 'standard', name: 'Tiết kiệm', desc: 'Dự kiến: 3-5 ngày', price: '15.000đ' },
-            ].map((method) => (
-              <TouchableOpacity
-                key={method.id}
-                style={[
-                  styles.shippingOption,
-                  shippingMethod === method.id && styles.shippingOptionActive,
-                ]}
-                onPress={() => setShippingMethod(method.id)}
-              >
-                <View style={styles.radioButton}>
-                  {shippingMethod === method.id && <View style={styles.radioDot} />}
+            {/* Express */}
+            <TouchableOpacity
+              style={[
+                styles.shippingOption,
+                shippingMethod === 'express' ? styles.shippingOptionActive : styles.shippingOptionInactive,
+              ]}
+              onPress={() => setShippingMethod('express')}
+              activeOpacity={0.8}
+            >
+              <View style={styles.shippingLeft}>
+                <View style={[styles.radioOuter, shippingMethod === 'express' && styles.radioOuterActive]}>
+                  {shippingMethod === 'express' && <View style={styles.radioInner} />}
                 </View>
-                <View style={styles.shippingInfo}>
-                  <Text style={styles.shippingName}>{method.name}</Text>
-                  <Text style={styles.shippingDesc}>{method.desc}</Text>
+                <View>
+                  <Text style={[styles.shippingNameText, shippingMethod === 'express' && styles.textActive]}>Giao hàng nhanh</Text>
+                  <Text style={styles.shippingDesc}>Dự kiến: Ngày mai</Text>
                 </View>
-                <Text style={styles.shippingPrice}>{method.price}</Text>
-              </TouchableOpacity>
-            ))}
+              </View>
+              <Text style={[styles.shippingPrice, shippingMethod === 'express' && styles.textActive]}>35.000đ</Text>
+            </TouchableOpacity>
+
+            {/* Economy */}
+            <TouchableOpacity
+              style={[
+                styles.shippingOption,
+                shippingMethod === 'standard' ? styles.shippingOptionActive : styles.shippingOptionInactive,
+                shippingMethod !== 'standard' && styles.opacity60
+              ]}
+              onPress={() => setShippingMethod('standard')}
+              activeOpacity={0.8}
+            >
+              <View style={styles.shippingLeft}>
+                <View style={[styles.radioOuter, shippingMethod === 'standard' && styles.radioOuterActive]}>
+                  {shippingMethod === 'standard' && <View style={styles.radioInner} />}
+                </View>
+                <View>
+                  <Text style={[styles.shippingNameText, shippingMethod === 'standard' && styles.textActive]}>Tiết kiệm</Text>
+                  <Text style={styles.shippingDesc}>Dự kiến: 3-5 ngày</Text>
+                </View>
+              </View>
+              <Text style={[styles.shippingPrice, shippingMethod === 'standard' && styles.textActive]}>15.000đ</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
         {/* 3. Payment Method */}
         <View style={styles.section}>
-          <View style={styles.sectionTitleRow}>
-            <Wallet size={18} color={Colors.primary} />
-            <Text style={styles.sectionTitle}>Thanh toán</Text>
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionTitleRow}>
+              <Wallet size={18} color={Colors.primary} />
+              <Text style={styles.sectionTitle}>Thanh toán</Text>
+            </View>
+            <TouchableOpacity onPress={() => router.push('/payment-method')}>
+              <Text style={styles.changeLink}>Thay đổi</Text>
+            </TouchableOpacity>
           </View>
-          <View style={styles.paymentMethod}>
-            <Image
-              source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD0lPl0ioy3CEa21IJq3qKiLVm3lyz8T0NrmR0cMVKsUbeuJouFyuJtIvWIdiLOp0B4MQvHTTNydta5-XmvrTzByq6vYDwGuL4mF1A1a9QLQd15-fRY_JgvoO8END8hfzEk-fVB90l6Sm4HrQT21e6GmrtAa71SbFTOeKQRBkEEU4u6UIUSkctVCu4df15KJiVy5T_qtUPEkCr4HVUjRPfUo9d7H6tZF2vprDHlKpdptT1kZDwbLYuJyx5IQyp8G8AmHGhd1xoN2GJ9' }}
-              style={styles.paymentLogo}
-            />
-            <View style={styles.paymentInfo}>
-              <Text style={styles.paymentMethod_Text}>Ví MoMo</Text>
+          <View style={styles.paymentCard}>
+            <View style={styles.paymentLogoWrapper}>
+              <Image
+                source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD0lPl0ioy3CEa21IJq3qKiLVm3lyz8T0NrmR0cMVKsUbeuJouFyuJtIvWIdiLOp0B4MQvHTTNydta5-XmvrTzByq6vYDwGuL4mF1A1a9QLQd15-fRY_JgvoO8END8hfzEk-fVB90l6Sm4HrQT21e6GmrtAa71SbFTOeKQRBkEEU4u6UIUSkctVCu4df15KJiVy5T_qtUPEkCr4HVUjRPfUo9d7H6tZF2vprDHlKpdptT1kZDwbLYuJyx5IQyp8G8AmHGhd1xoN2GJ9' }}
+                style={styles.paymentLogo as any}
+                resizeMode="contain"
+              />
+            </View>
+            <View style={styles.paymentDetails}>
+              <Text style={styles.paymentName}>Ví MoMo</Text>
               <Text style={styles.paymentDesc}>Liên kết: 0908****56</Text>
             </View>
+            <CheckCircle size={22} color={Colors.primary} />
           </View>
         </View>
 
-        {/* 4. Order Items */}
+        {/* 4. Order Items Summary */}
         <View style={styles.section}>
           <View style={styles.sectionTitleRow}>
             <Package size={18} color={Colors.primary} />
             <Text style={styles.sectionTitle}>Sản phẩm (2)</Text>
           </View>
-          <View style={styles.itemsList}>
-            {[
-              {
-                name: 'Nhiệt kế hồng ngoại đa năng Con Khỏe',
-                price: '850.000đ',
-                image: 'https://i.ibb.co/gMCLz93P/n-i-n-u-ch-m-0-8l-3.png',
-              },
-              {
-                name: 'Bộ Body Cotton Hữu Cơ - Xanh Sky',
-                price: '245.000đ',
-                image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCVlRfwrRNi8AFexGaAedXrjal0gLenVWgKfazjoFZMg7haBaotQ1JgBcJreVMTQiXShNxq01pvLuysXoqKV12V6JeJ0qmO7Pt84gueJ7sC-_VdkaePbR0uZFLduws05iCt8o4Sb7U_BJFuqo_lWwJ3wMOpD6lJqZfEEwCxcNGo6l_80BxqXKjIagayDvk44wjGXePY1iXPlCspz_8UtLtUdck9cmK9i-lFBPhcR2759P-2B5gJrRr2na5L618WiU-Re3Xt7wT5sYxN',
-              },
-            ].map((item, i) => (
-              <View key={i} style={styles.orderItem}>
-                <Image source={{ uri: item.image }} style={styles.orderItemImage} />
-                <View style={styles.orderItemInfo}>
-                  <Text style={styles.orderItemName}>{item.name}</Text>
-                  <Text style={styles.orderItemPrice}>{item.price}</Text>
+          
+          <View style={styles.orderItemsList}>
+            {/* Item 1 */}
+            <View style={styles.orderItem}>
+              <Image source={{ uri: 'https://i.ibb.co/gMCLz93P/n-i-n-u-ch-m-0-8l-3.png' }} style={styles.orderItemImage as any} />
+              <View style={styles.orderItemContent}>
+                <Text style={styles.orderItemName} numberOfLines={2}>Nhiệt kế hồng ngoại đa năng Con Khỏe</Text>
+                <View style={styles.priceRow}>
+                  <Text style={styles.orderItemPrice}>850.000đ</Text>
+                  <Text style={styles.orderItemOriginalPrice}>990.000đ</Text>
                 </View>
               </View>
-            ))}
+            </View>
+
+            {/* Item 2 */}
+            <View style={styles.orderItem}>
+              <Image source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCVlRfwrRNi8AFexGaAedXrjal0gLenVWgKfazjoFZMg7haBaotQ1JgBcJreVMTQiXShNxq01pvLuysXoqKV12V6JeJ0qmO7Pt84gueJ7sC-_VdkaePbR0uZFLduws05iCt8o4Sb7U_BJFuqo_lWwJ3wMOpD6lJqZfEEwCxcNGo6l_80BxqXKjIagayDvk44wjGXePY1iXPlCspz_8UtLtUdck9cmK9i-lFBPhcR2759P-2B5gJrRr2na5L618WiU-Re3Xt7wT5sYxN' }} style={styles.orderItemImage as any} />
+              <View style={styles.orderItemContent}>
+                <Text style={styles.orderItemName} numberOfLines={2}>Bộ Body Cotton Hữu Cơ - Xanh Sky</Text>
+                <Text style={styles.orderItemPrice}>245.000đ</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Coupon */}
+          <View style={styles.couponLine}>
+            <View style={styles.couponLeft}>
+              <Tag size={16} color={Colors.primary} />
+              <Text style={styles.couponText}>Mã giảm giá "BEYEU50"</Text>
+            </View>
+            <TouchableOpacity style={styles.closeBtn}>
+              <X size={16} color={Colors.primary} />
+            </TouchableOpacity>
           </View>
         </View>
 
-        <View style={{ height: 100 }} />
+        <View style={{ height: 260 }} />
       </ScrollView>
 
-      {/* Bottom Summary & Checkout */}
-      <View style={styles.bottomBar}>
-        <View>
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Tạm tính</Text>
-            <Text style={styles.summaryValue}>1.095.000đ</Text>
+      {/* Footer Action Bar */}
+      <View style={styles.footer}>
+        <View style={styles.footerDetails}>
+          <View style={styles.footerRow}>
+            <Text style={styles.footerLabel}>Tạm tính</Text>
+            <Text style={styles.footerVal}>1.095.000đ</Text>
           </View>
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Phí vận chuyển</Text>
-            <Text style={styles.summaryValue}>35.000đ</Text>
+          <View style={styles.footerRow}>
+            <Text style={styles.footerLabel}>Phí vận chuyển</Text>
+            <Text style={styles.footerVal}>35.000đ</Text>
           </View>
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel} style={{ color: Colors.error }}>Giảm giá</Text>
-            <Text style={styles.summaryValue} style={{ color: Colors.error }}>-50.000đ</Text>
+          <View style={styles.footerRow}>
+            <Text style={styles.discountLabel}>Giảm giá</Text>
+            <Text style={styles.discountVal}>-50.000đ</Text>
           </View>
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Tổng cộng</Text>
-            <Text style={styles.totalPrice}>1.080.000đ</Text>
+          <View style={styles.divider} />
+          <View style={styles.footerTotalRow}>
+            <Text style={styles.footerTotalLabel}>Tổng cộng</Text>
+            <View style={styles.totalPriceWrapper}>
+              <Text style={styles.footerTotalPrice}>1.080.000đ</Text>
+              <Text style={styles.footerVatText}>(Đã bao gồm VAT)</Text>
+            </View>
           </View>
         </View>
-        <TouchableOpacity
-          style={styles.placeOrderBtn}
-          activeOpacity={0.9}
-          onPress={() => router.replace('/order-confirmation')}
-        >
-          <Text style={styles.placeOrderBtnText}>Đặt Hàng Ngay</Text>
+
+        <TouchableOpacity style={styles.placeOrderBtn} onPress={handlePlaceOrder} activeOpacity={0.85} disabled={loading}>
+          {loading ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <>
+              <Text style={styles.placeOrderBtnText}>Đặt Hàng Ngay</Text>
+              <ArrowRight size={24} color="#fff" />
+            </>
+          )}
         </TouchableOpacity>
       </View>
     </View>
@@ -167,7 +226,7 @@ export default function CheckoutScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+  container: { flex: 1, backgroundColor: Colors.softGrey },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -180,40 +239,55 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 12,
     elevation: 4,
+    zIndex: 100,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: '700',
     color: Colors.primary,
     fontFamily: 'NunitoSans-Bold',
+    letterSpacing: -0.5,
   },
   stepLabel: {
-    fontSize: 12,
+    fontSize: 14,
+    fontWeight: '700',
     color: Colors.onSurfaceVariant,
-    fontFamily: 'NunitoSans-Regular',
+    fontFamily: 'NunitoSans-Bold',
   },
   scroll: { flex: 1 },
-  scrollContent: { paddingHorizontal: 20, paddingTop: 12 },
+  scrollContent: { paddingHorizontal: 20, paddingTop: 20 },
   progressBar: {
     flexDirection: 'row',
     gap: 8,
-    marginBottom: 20,
+    marginBottom: 24,
   },
-  progressDot: {
+  progressSegment: {
     flex: 1,
     height: 4,
     backgroundColor: Colors.primary,
-    borderRadius: 2,
+    borderRadius: 9999,
   },
   section: {
-    backgroundColor: Colors.surfaceContainerLowest,
-    borderRadius: 12,
+    backgroundColor: Colors.surface,
+    borderRadius: 16,
     padding: 16,
     marginBottom: 16,
     shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 20 },
     shadowOpacity: 0.08,
-    shadowRadius: 12,
+    shadowRadius: 30,
     elevation: 3,
   },
   sectionHeader: {
@@ -230,191 +304,295 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: Colors.onSurface,
+    color: Colors.primary,
     fontFamily: 'NunitoSans-Bold',
   },
-  sectionSubtitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: Colors.onSurface,
-    marginBottom: 4,
-    fontFamily: 'NunitoSans-SemiBold',
-  },
-  sectionContent: {
+  changeLink: {
     fontSize: 12,
-    color: Colors.onSurfaceVariant,
-    lineHeight: 18,
-    fontFamily: 'NunitoSans-Regular',
-  },
-  shippingOptions: {
-    gap: 12,
-  },
-  shippingOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: Colors.outlineVariant,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    gap: 12,
-  },
-  shippingOptionActive: {
-    borderColor: Colors.primary,
-    backgroundColor: Colors.primary + '10',
-  },
-  radioButton: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: Colors.outlineVariant,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  radioDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: Colors.primary,
-  },
-  shippingInfo: {
-    flex: 1,
-  },
-  shippingName: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: Colors.onSurface,
-    fontFamily: 'NunitoSans-Bold',
-  },
-  shippingDesc: {
-    fontSize: 11,
-    color: Colors.onSurfaceVariant,
-    fontFamily: 'NunitoSans-Regular',
-  },
-  shippingPrice: {
-    fontSize: 14,
     fontWeight: '700',
     color: Colors.primary,
     fontFamily: 'NunitoSans-Bold',
   },
-  paymentMethod: {
+  addressBody: {
+    paddingLeft: 26,
+  },
+  addressName: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: Colors.onSurface,
+    fontFamily: 'NunitoSans-Bold',
+    marginBottom: 4,
+  },
+  addressText: {
+    fontSize: 16,
+    color: Colors.onSurfaceVariant,
+    lineHeight: 20,
+    fontFamily: 'NunitoSans-Regular',
+  },
+  shippingOptions: {
+    gap: 8,
+    marginTop: 12,
+  },
+  shippingOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 2,
+  },
+  shippingOptionActive: {
+    borderColor: Colors.primary,
+    backgroundColor: Colors.primaryContainer + '1a',
+  },
+  shippingOptionInactive: {
+    borderColor: 'transparent',
+    backgroundColor: Colors.softGrey,
+  },
+  shippingLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: Colors.softGrey + '50',
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    borderRadius: 8,
   },
-  paymentLogo: {
+  radioOuter: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: Colors.outline,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  radioOuterActive: {
+    borderColor: Colors.primary,
+  },
+  radioInner: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: Colors.primary,
+  },
+  shippingNameText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: Colors.onSurfaceVariant,
+    fontFamily: 'NunitoSans-Bold',
+  },
+  shippingDesc: {
+    fontSize: 12,
+    color: Colors.onSurfaceVariant,
+    fontFamily: 'NunitoSans-Regular',
+    marginTop: 2,
+  },
+  shippingPrice: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: Colors.onSurfaceVariant,
+    fontFamily: 'NunitoSans-Bold',
+  },
+  textActive: {
+    color: Colors.primary,
+  },
+  opacity60: {
+    opacity: 0.6,
+  },
+  paymentCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.softGrey + '80',
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.outlineVariant,
+    marginTop: 12,
+  },
+  paymentLogoWrapper: {
     width: 48,
     height: 32,
+    backgroundColor: '#fff',
     borderRadius: 6,
-    backgroundColor: Colors.surfaceContainerLowest,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
-  paymentInfo: {
+  paymentLogo: {
+    width: '100%',
+    height: '100%',
+  },
+  paymentDetails: {
     flex: 1,
+    paddingLeft: 12,
   },
-  paymentMethod_Text: {
+  paymentName: {
     fontSize: 14,
     fontWeight: '700',
     color: Colors.onSurface,
     fontFamily: 'NunitoSans-Bold',
   },
   paymentDesc: {
-    fontSize: 11,
+    fontSize: 12,
     color: Colors.onSurfaceVariant,
     fontFamily: 'NunitoSans-Regular',
   },
-  itemsList: {
-    gap: 12,
+  orderItemsList: {
+    gap: 16,
+    marginTop: 16,
   },
   orderItem: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
+    gap: 16,
   },
   orderItemImage: {
     width: 80,
     height: 80,
+    backgroundColor: Colors.softGrey,
     borderRadius: 8,
   },
-  orderItemInfo: {
+  orderItemContent: {
     flex: 1,
+    justifyContent: 'space-between',
+    paddingVertical: 4,
   },
   orderItemName: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '700',
     color: Colors.onSurface,
     fontFamily: 'NunitoSans-Bold',
   },
+  priceRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 8,
+  },
   orderItemPrice: {
-    fontSize: 13,
+    fontSize: 22,
+    fontWeight: '800',
+    color: Colors.primary,
+    fontFamily: 'NunitoSans-ExtraBold',
+  },
+  orderItemOriginalPrice: {
+    fontSize: 12,
+    color: Colors.onSurfaceVariant,
+    textDecorationLine: 'line-through',
+    opacity: 0.5,
+    fontFamily: 'NunitoSans-Regular',
+  },
+  couponLine: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: Colors.skyBlue + '1a',
+    borderWidth: 1,
+    borderColor: Colors.skyBlue + '4d',
+    borderRadius: 8,
+    padding: 12,
+    marginTop: 16,
+  },
+  couponLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  couponText: {
+    fontSize: 12,
     fontWeight: '700',
     color: Colors.primary,
-    marginTop: 4,
     fontFamily: 'NunitoSans-Bold',
   },
-  bottomBar: {
+  closeBtn: {
+    padding: 4,
+  },
+  footer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: Colors.surfaceContainerLowest,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    paddingBottom: 20,
-    gap: 12,
+    backgroundColor: Colors.surface,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
     shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: -4 },
+    shadowOffset: { width: 0, height: -10 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowRadius: 30,
+    elevation: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    paddingBottom: 32,
   },
-  summaryRow: {
+  footerDetails: {
+    gap: 8,
+    marginBottom: 16,
+  },
+  footerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 4,
+    alignItems: 'center',
   },
-  summaryLabel: {
-    fontSize: 12,
+  footerLabel: {
+    fontSize: 16,
     color: Colors.onSurfaceVariant,
     fontFamily: 'NunitoSans-Regular',
   },
-  summaryValue: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: Colors.onSurface,
-    fontFamily: 'NunitoSans-SemiBold',
+  footerVal: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: Colors.onSurfaceVariant,
+    fontFamily: 'NunitoSans-Bold',
   },
-  totalRow: {
+  discountLabel: {
+    fontSize: 16,
+    color: Colors.error,
+    fontWeight: '700',
+    fontFamily: 'NunitoSans-Bold',
+  },
+  discountVal: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: Colors.error,
+    fontFamily: 'NunitoSans-Bold',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: Colors.outlineVariant + '40',
+    marginVertical: 8,
+  },
+  footerTotalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 8,
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: Colors.outlineVariant + '20',
+    alignItems: 'flex-end',
   },
-  totalLabel: {
-    fontSize: 14,
+  footerTotalLabel: {
+    fontSize: 24,
     fontWeight: '700',
     color: Colors.onSurface,
     fontFamily: 'NunitoSans-Bold',
   },
-  totalPrice: {
-    fontSize: 14,
+  totalPriceWrapper: {
+    alignItems: 'flex-end',
+  },
+  footerTotalPrice: {
+    fontSize: 24,
     fontWeight: '700',
     color: Colors.primary,
     fontFamily: 'NunitoSans-Bold',
   },
+  footerVatText: {
+    fontSize: 12,
+    color: Colors.onSurfaceVariant,
+    fontFamily: 'NunitoSans-Regular',
+  },
   placeOrderBtn: {
     width: '100%',
-    height: 52,
-    borderRadius: 12,
+    height: 56,
     backgroundColor: Colors.primary,
+    borderRadius: 9999,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 8,
     shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
@@ -422,9 +600,9 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   placeOrderBtnText: {
-    fontSize: 16,
+    fontSize: 24,
     fontWeight: '700',
-    color: Colors.onPrimary,
+    color: '#fff',
     fontFamily: 'NunitoSans-Bold',
   },
 });

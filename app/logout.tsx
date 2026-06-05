@@ -60,7 +60,7 @@ export default function LogoutScreen() {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1, backgroundColor: 'rgba(23, 29, 21, 0.4)',
-    backdropFilter: 'blur(8px)', alignItems: 'center', justifyContent: 'center',
+    alignItems: 'center', justifyContent: 'center',
   },
   closeBtn: {
     position: 'absolute', top: 48, right: 24,
